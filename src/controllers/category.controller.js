@@ -95,8 +95,6 @@ const updateCategory = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedCategory, "Category updated successfully"));
 });
 
-
-
 const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params; // Get the category ID from the request parameters
 

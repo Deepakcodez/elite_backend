@@ -13,7 +13,7 @@ const bookingSchema = new mongoose.Schema(
       unique: true,
     },
     typeOfProperty: {
-      type: string,
+      type: String,
       enum: ["home", "office", "villa"],
       required: true,
     },
