@@ -1,20 +1,20 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import connectDB from './config/db.js';
-import partnerRoutes from './routes/partnerRoutes.js';
-import bookingRoutes from './routes/bookingRoutes.js';
-import profileRoutes from './routes/profileRoutes.js';
+import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./src/config/db.js";
+import partnerRoutes from "./src/routes/partner.route.js";
+import bookingRoutes from "./src/routes/booking.route.js";
+const app = express();
 
 dotenv.config();
-const app = express();
-  
-app.use(express.json());
+connectDB();
+
+app.use(express.json({extended: true}));
 
 // Routes
-app.use('/api/partner', partnerRoutes);
-app.use('/api/partner', bookingRoutes);
-app.use('/api/partner', profileRoutes);
+app.use("/api/v1/partner", partnerRoutes);
+app.use("/api/v1/booking", bookingRoutes);
+// app.use('/api/partner', profileRoutes);
 
-connectDB();
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

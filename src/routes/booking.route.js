@@ -4,7 +4,7 @@ import {
   getBookings,
   updateBookingStatus,
   getBookingById,
-} from "../controllers/bookingController.js";
+} from "../controllers/booking.controller.js";
 
 const router = express.Router();
 
