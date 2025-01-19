@@ -118,6 +118,7 @@ export async function login(req, res) {
 
       const token = jwt.sign(
         { userId: user._id, email: user.email },
+        // eslint-disable-next-line no-undef
         process.env.JWT_SECRET,
         { expiresIn: "30d" }
       );
@@ -146,6 +147,7 @@ export async function verifyLoginOTP(req, res) {
 
     const token = jwt.sign(
       { userId: user._id, mobile: user.mobile },
+      // eslint-disable-next-line no-undef
       process.env.JWT_SECRET,
       { expiresIn: "30d" }
     );
