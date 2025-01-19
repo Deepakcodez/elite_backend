@@ -163,12 +163,11 @@ export const signOut = async (req, res) => {
   try {
     res.status(200).json({ msg: "Successfully signed out." });
   } catch (error) {
-    res.status(500).json({ msg: "Error during sign out.", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error during sign out.", error: error.message });
   }
 };
-
-
-
 
 // Create Profile
 export const createProfile = async (req, res) => {
@@ -214,6 +213,8 @@ export const updateProfile = async (req, res) => {
 
     const updates = { name, businessName, gender, phoneNumber };
 
+
+
     const profile = await partnerModel.findByIdAndUpdate(
       req.params.id,
       updates,
@@ -237,7 +238,9 @@ export const getEarnings = async (req, res) => {
     if (!profile) return res.status(404).json({ msg: "Profile not found." });
     res.status(200).json({ earnings: profile.earnings });
   } catch (error) {
-    res.status(500).json({ msg: "Error fetching earnings", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error fetching earnings", error: error.message });
   }
 };
 
@@ -251,10 +254,12 @@ export const updateAvailability = async (req, res) => {
       { new: true }
     );
     if (!profile) return res.status(404).json({ msg: "Profile not found." });
-    res.status(200).json({ msg: "Availability updated successfully.", profile });
+    res
+      .status(200)
+      .json({ msg: "Availability updated successfully.", profile });
   } catch (error) {
-    res.status(500).json({ msg: "Error updating availability", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error updating availability", error: error.message });
   }
 };
-
-
