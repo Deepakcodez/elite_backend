@@ -1,6 +1,5 @@
-import partnerModel from "../models/painterModel.js";
 import jwt from "jsonwebtoken";
-import Partner from "../models/partnerModel.js";
+import partnerModel from "../models/partner/partner.model.js";
 
 // Fixed OTP function
 const generateOTP = () => "1234"; // Fixed OTP
@@ -176,7 +175,7 @@ export const createProfile = async (req, res) => {
 
     if (!name) return res.status(400).json({ error: "Name is required." });
 
-    const profile = new Partner({
+    const profile = new partnerModel({
       name,
       businessName,
       gender,
@@ -194,7 +193,7 @@ export const createProfile = async (req, res) => {
 // Get Profile
 export const getProfile = async (req, res) => {
   try {
-    const profile = await Partner.findById(req.params.id);
+    const profile = await partnerModel.findById(req.params.id);
     if (!profile) return res.status(404).json({ msg: "Profile not found." });
     res.status(200).json(profile);
   } catch (error) {
@@ -213,7 +212,7 @@ export const updateProfile = async (req, res) => {
 
     const updates = { name, businessName, gender, phoneNumber };
 
-    const profile = await Partner.findByIdAndUpdate(
+    const profile = await partnerModel.findByIdAndUpdate(
       req.params.id,
       updates,
       { new: true }
@@ -232,7 +231,7 @@ export const updateProfile = async (req, res) => {
 // Get Earnings
 export const getEarnings = async (req, res) => {
   try {
-    const profile = await Partner.findById(req.params.id);
+    const profile = await partnerModel.findById(req.params.id);
     if (!profile) return res.status(404).json({ msg: "Profile not found." });
     res.status(200).json({ earnings: profile.earnings });
   } catch (error) {
@@ -244,7 +243,7 @@ export const getEarnings = async (req, res) => {
 export const updateAvailability = async (req, res) => {
   try {
     const { availability } = req.body;
-    const profile = await Partner.findByIdAndUpdate(
+    const profile = await partnerModel.findByIdAndUpdate(
       req.params.id,
       { availability },
       { new: true }

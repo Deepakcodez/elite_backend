@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import partnerRoutes from './routes/partnerRoutes.js';
+import partnerRoutes from './routes/partner.route.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 
