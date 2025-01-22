@@ -5,6 +5,7 @@ import partnerRoutes from "./src/routes/partner.route.js";
 import bookingRoutes from "./src/routes/booking.route.js";
 import { categoryRoute,serviceRoute } from "./src/routes/index.js";
 import userRoutes from "./src/routes/user.route.js"
+import adminRoutes from "./src/routes/admin.route.js"
 
 const app = express();
 
@@ -19,8 +20,16 @@ app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/category", categoryRoute);
 app.use("/api/v1/service", serviceRoute);
 app.use("/api/v1/User",userRoutes);
+app.use("/api/v1/admin",adminRoutes);
 
 // app.use('/api/partner', profileRoutes);
+
+
+// Default route for all other requests
+app.get("*", (req, res) => {
+    res.status(200).json({ message: "Welcome to EliteFinish" });
+});
+
 
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 5000;

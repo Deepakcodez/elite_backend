@@ -8,7 +8,8 @@ import {
     sendVerificationLink,
     verifyLink,
     resetPassword,
-} from "../controllers/user.controller.js"; 
+} from "../controllers/user.controller.js";
+import  {protect}  from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -34,6 +35,6 @@ router.post("/send-verification-link", sendVerificationLink);
 router.get("/verify-link/:token", verifyLink);
 
 // Reset Password
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", protect, resetPassword);
 
 export default router;

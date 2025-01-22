@@ -3,7 +3,7 @@ import User from '../models/user/user.model.js';
 import Partner from '../models/partner/partner.model.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
-const protect = (role) => {
+ export const protect = (role) => {
   return async (req, res, next) => {
     let token;
 
@@ -46,7 +46,6 @@ const protect = (role) => {
   };
 };
 
-export default protect;
 
 // Middleware to authorize specific roles
 export const authorizeRoles = (...roles) => {
@@ -62,3 +61,5 @@ export const authorizeRoles = (...roles) => {
     next();
   };
 };
+
+
