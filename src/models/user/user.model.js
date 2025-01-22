@@ -5,25 +5,24 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      unique: true,
-      sparse: true, // Allows unique null or undefined values
+      required: true,
       trim: true,
     },
     email: {
       type: String,
       unique: true,
-      sparse: true, // Allows unique null values
+      sparse: true, // Allows unique or null values
       trim: true,
     },
-    mobile: {
+    phone: {
       type: String,
       unique: true,
-      sparse: true, // Allows unique null values
+      sparse: true, // Allows unique or null values
       trim: true,
     },
     password: {
       type: String,
-      required: false,
+      required: true,
     },
     role: {
       type: String,
@@ -31,9 +30,9 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "partner"],
       default: "user",
     },
-    emailOtp: { 
+    emailOtp: {
       type: String,
-      default: null, 
+      default: null,
     },
     address: {
       type: String,
@@ -54,7 +53,6 @@ userSchema.pre("save", async function (next) {
     next(error);
   }
 });
-
 
 const User = mongoose.model("User", userSchema);
 export default User;
