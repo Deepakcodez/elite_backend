@@ -5,7 +5,10 @@ const categorySchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+<<<<<<< HEAD
       unique : true,
+=======
+>>>>>>> Shubham
     },
     description: {
       type: String,

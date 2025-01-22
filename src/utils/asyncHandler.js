@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const asyncHandler = (fn) => async (req, res, next) => {
+=======
+export const asyncHandler = (fn) => async (req, res, next) => {
+>>>>>>> Shubham
   try {
     await fn(req, res, next);
   } catch (error) {
@@ -8,5 +12,8 @@ const asyncHandler = (fn) => async (req, res, next) => {
     });
   }
 };
+<<<<<<< HEAD
 
 export {asyncHandler};
+=======
+>>>>>>> Shubham
