@@ -8,11 +8,7 @@ import {
 
 const router = express.Router();
 
-<<<<<<< HEAD
-router.get("/",   getAllCategories);
-=======
 router.get("/", getAllCategories);
->>>>>>> Shubham
 router.post("/create", createCategory);
 router.patch("/update/:id", updateCategory);
 router.delete("/delete/:id", deleteCategory);

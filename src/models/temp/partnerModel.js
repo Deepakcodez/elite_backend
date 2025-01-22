@@ -13,3 +13,4 @@ const partnerSchema = new mongoose.Schema(
 const Partner = mongoose.model("Partner", partnerSchema);
 
 export default Partner;
+                

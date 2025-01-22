@@ -15,10 +15,6 @@ const demo = asyncHandler(async (req, res) => {
 
 const createCategory = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-<<<<<<< HEAD
-  
-=======
->>>>>>> Shubham
 
   if (!title.trim() || !description.trim()) {
     throw new ApiError(404, "provide title and description");

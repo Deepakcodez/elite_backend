@@ -1,28 +1,11 @@
 import mongoose from "mongoose";
-<<<<<<< HEAD
-=======
 import bcrypt from "bcrypt";
->>>>>>> Shubham
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
-<<<<<<< HEAD
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: false,
-    },
-    phone: {
-      type: String,
-=======
       trim: true,
     },
     email: {
@@ -39,24 +22,11 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
->>>>>>> Shubham
       required: true,
     },
     role: {
       type: String,
       required: true,
-<<<<<<< HEAD
-      enum: ["user", "admin","partner"],
-      default: "user",
-    },
-    // will expand later
-    address: {
-      type: String,
-      required: true,
-    },
-    
-    
-=======
       enum: ["user", "admin", "partner"],
       default: "user",
     },
@@ -68,14 +38,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
->>>>>>> Shubham
   },
   { timestamps: true }
 );
 
-<<<<<<< HEAD
-export default mongoose.model("User", userSchema);
-=======
 // Password hashing middleware
 userSchema.pre("save", async function (next) {
   try {
@@ -90,4 +56,3 @@ userSchema.pre("save", async function (next) {
 
 const User = mongoose.model("User", userSchema);
 export default User;
->>>>>>> Shubham

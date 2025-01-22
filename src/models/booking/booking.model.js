@@ -6,6 +6,7 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Partner",
       required: true,
+
     },
     orderId: {
       type: String,
@@ -26,6 +27,10 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
+    },
+    description : {
+      type: String,
+      required : false,
     },
     customer: {
       ref: "User",
