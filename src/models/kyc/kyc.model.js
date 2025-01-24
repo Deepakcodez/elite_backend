@@ -1,7 +1,7 @@
 import mongoose  from "mongoose";
 
 const kycSchema = new mongoose.Schema({
-  influencerDocId: {
+  partnerDocId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Partner",
     required: true,
