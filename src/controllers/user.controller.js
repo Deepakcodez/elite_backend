@@ -8,8 +8,6 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 
 
-// eslint-disable-next-line no-undef
-const JWT_SECRET = process.env.JWT_SECRET;
 
 // Signup Controller
 export const signup = async (req, res) => {
@@ -17,7 +15,7 @@ export const signup = async (req, res) => {
     const { name, email, phone, password } = req.body;
 
     // Validate input
-    if (!name || (!email && !phone) || !password) {
+    if (!name || !password || (!email && !phone)) {
       return res.status(400).json({ message: "Name, email or phone, and password are required" });
     }
 
@@ -27,21 +25,19 @@ export const signup = async (req, res) => {
       return res.status(409).json({ message: "User already exists" });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create a new user
     const newUser = new User({
       name,
-      email: email || null,
-      phone: phone || null,
-      password: hashedPassword,
+      email,
+      phone,
+      password, // Password will be hashed by the pre-save middleware
     });
 
     await newUser.save();
     return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    console.error("Signup Error:", error); // Debugging
+    return res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -50,29 +46,48 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-   
 
+    // Check if password is set for the user
     if (!user.password) {
       return res.status(401).json({ message: "Password not set for this user" });
     }
-    
+
+    // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
 
-    return res.status(200).json({ message: "Login successful", token });
+    // Generate JWT token
+    // eslint-disable-next-line no-undef
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    // Store the token in an HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      // eslint-disable-next-line no-undef
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    // Return success response
+    return res.status(200).json({ message: "Login successful" });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
+    console.error("Login Error:", error); // Debugging
+    return res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -227,14 +242,61 @@ export const verifyLink = async (req, res, next) => {
   }
 };
 
-// Reset Password
 export const resetPassword = async (req, res, next) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: "Token and new password are required." });
+  }
+
+  try {
+    // Decode the token to extract user ID or email
+      // eslint-disable-next-line no-undef
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
+
+    // Find the user using the decoded information
+    const user = await User.findById(decoded.id); // Assuming `id` is in the token payload
+    console.log("User found:", user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.otpExpiresAt && user.otpExpiresAt < Date.now()) {
+      return res.status(400).json({ message: "Token is expired." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    user.emailOtp = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password successfully reset. You can now log in with the new password." });
+  } catch (error) {
+    if (error.name === "JsonWebTokenError") {
+      return res.status(400).json({ message: "Invalid token." });
+    } else if (error.name === "TokenExpiredError") {
+      return res.status(400).json({ message: "Token is expired." });
+    }
+    next(error);
+  }
+};
+
+// Change Password (for logged-in users)
+export const changePassword = async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: "Current and new passwords are required." });
+  }
 
   try {
     const user = await User.findById(req.user.id).select("+password");
-
-
     if (!user) {
       return next(new ErrorHandler("User not found", 404));
     }
@@ -243,7 +305,7 @@ export const resetPassword = async (req, res, next) => {
     const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isPasswordMatch) {
-      return next(new ErrorHandler("Incorrect current password", 401));
+      return res.status(401).json({ message: "Incorrect current password." });
     }
 
     // Hash the new password
@@ -257,7 +319,6 @@ export const resetPassword = async (req, res, next) => {
       message: "Your password has been successfully changed. You can now use your new password to log in.",
     });
   } catch (error) {
-    console.error(error);
-    return next(error);
+    next(error);
   }
 };
