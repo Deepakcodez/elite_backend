@@ -7,7 +7,8 @@ import ErrorHandler from "../utils/errorHandler.js"
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 
-
+// Mock OTP
+const MOCK_OTP = "9876";
 
 // Signup Controller
 export const signup = async (req, res) => {
@@ -163,6 +164,44 @@ export const verifyEmailOtpLogin = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log(error.message)
+  }
+};
+
+// Controller for mobile OTP login
+
+export const loginWithMobileOtp = async (req, res) => {
+  const { phone, otp } = req.body;
+
+  try {
+    // Validate input
+    if (!phone || !otp) {
+      return res.status(400).json({ message: "Phone number and OTP are required." });
+    }
+
+    // Check if the user exists
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Validate OTP
+    if (otp !== MOCK_OTP) {
+      return res.status(401).json({ message: "Invalid OTP." });
+    }
+
+    return res.status(200).json({
+      message: "Login successful.",
+      user: {
+        id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error during OTP login:", error);
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
