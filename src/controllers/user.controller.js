@@ -8,6 +8,10 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0ec34132191c6b931f170d9ca9109e53d95892e8
 
 // Signup Controller
 export const signup = async (req, res) => {
@@ -42,6 +46,7 @@ export const signup = async (req, res) => {
 };
 
 // Login Controller
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -64,7 +69,11 @@ export const login = async (req, res) => {
 
     // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
+<<<<<<< HEAD
     
+=======
+    console.log("Password Valid:", isPasswordValid); // Debugging
+>>>>>>> 0ec34132191c6b931f170d9ca9109e53d95892e8
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -74,6 +83,7 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
+<<<<<<< HEAD
     // Store the token in an HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
@@ -85,6 +95,11 @@ export const login = async (req, res) => {
 
     // Return success response
     return res.status(200).json({ message: "Login successful" });
+=======
+
+    // Return success response
+    return res.status(200).json({ message: "Login successful", token });
+>>>>>>> 0ec34132191c6b931f170d9ca9109e53d95892e8
   } catch (error) {
     console.error("Login Error:", error); // Debugging
     return res.status(500).json({ message: "Internal Server Error", error: error.message });
