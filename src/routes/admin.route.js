@@ -1,6 +1,17 @@
 import express from 'express';
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
-import { getUser, createUser, deleteUser, getAllUser, adminLogin, adminLogout, adminRegister } from "../controllers/admin.controller.js";
+import {
+    getUser,
+    createUser,
+    deleteUser,
+    getAllUser,
+    adminLogin,
+    adminLogout,
+    adminRegister,
+    getAllPainters,
+    getSinglePainter,
+    deletePainter
+} from '../controllers/admin.controller.js'; "../controllers/admin.controller.js";
 import { updateKyc, getPendingKyc } from '../controllers/admin.controller.js';
 import { validateRequest, adminValidationRules } from '../middleware/validator.js';
 
@@ -23,6 +34,11 @@ router.get('/users', protect('admin'), authorizeRoles('admin'), getAllUser); // 
 //KYC DETAILS
 router.put('/kyc/:PartnerId', protect('admin'), authorizeRoles('admin'), updateKyc); // Admin to update KYC details
 router.get('/kyc/pending', protect('admin'), authorizeRoles('admin'), getPendingKyc); // Admin to get pending KYC details
+
+// Routes for Painter Management (Admin Only)
+router.get('/painters', protect('admin'), authorizeRoles('admin'), getAllPainters); // Admin can get all painters
+router.get('/painters/:id', protect('admin'), authorizeRoles('admin'), getSinglePainter); // Admin can get a single painter
+router.delete('/painters/:id', protect('admin'), authorizeRoles('admin'), deletePainter); // Admin can delete a painter
 
 
 

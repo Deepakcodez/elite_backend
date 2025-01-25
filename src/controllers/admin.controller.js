@@ -1,9 +1,10 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import User from '../models/user/user.model.js';
 import ErrorHandler from '../utils/errorHandler.js';
 import  KYC  from "../models/kyc/kyc.model.js";
 import  Partner  from "../models/partner/partner.model.js";
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import  Painter  from "../models/painter/painter.model.js";
 
 
 
@@ -288,5 +289,58 @@ export const getPendingKyc = async (req, res, next) => {
   }
 };
 
+// Get all painters
+export const getAllPainters = async (req, res, next) => {
+  try {
+    const painters = await Painter.find(); // Fetch all painters
+    res.status(200).json({
+      success: true,
+      count: painters.length,
+      data: painters,
+    });
+  } catch (error) {
+    next(new ErrorHandler(error.message, 500)); // Handle server errors
+  }
+};
+
+// Get a single painter by ID
+export const getSinglePainter = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const painter = await Painter.findById(id); // Find painter by ID
+    if (!painter) {
+      return next(new ErrorHandler('Painter not found', 404)); // Handle if painter does not exist
+    }
+
+    res.status(200).json({
+      success: true,
+      data: painter,
+    });
+  } catch (error) {
+    next(new ErrorHandler(error.message, 500)); // Handle server errors
+  }
+};
+
+// Delete a painter by ID
+export const deletePainter = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const painter = await Painter.findById(id); // Find painter by ID
+    if (!painter) {
+      return next(new ErrorHandler('Painter not found', 404)); // Handle if painter does not exist
+    }
+
+    await painter.remove(); // Remove painter from the database
+
+    res.status(200).json({
+      success: true,
+      message: 'Painter deleted successfully',
+    });
+  } catch (error) {
+    next(new ErrorHandler(error.message, 500)); // Handle server errors
+  }
+};
 
 
