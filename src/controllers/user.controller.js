@@ -7,8 +7,8 @@ import ErrorHandler from "../utils/errorHandler.js"
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 
-
-
+// Mock OTP
+const MOCK_OTP = "9876";
 
 // Signup Controller
 export const signup = async (req, res) => {
@@ -66,7 +66,7 @@ export const login = async (req, res) => {
 
     // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log("Password Valid:", isPasswordValid); // Debugging
+    
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -167,6 +167,44 @@ export const verifyEmailOtpLogin = async (req, res) => {
   }
 };
 
+// Controller for mobile OTP login
+
+export const loginWithMobileOtp = async (req, res) => {
+  const { phone, otp } = req.body;
+
+  try {
+    // Validate input
+    if (!phone || !otp) {
+      return res.status(400).json({ message: "Phone number and OTP are required." });
+    }
+
+    // Check if the user exists
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Validate OTP
+    if (otp !== MOCK_OTP) {
+      return res.status(401).json({ message: "Invalid OTP." });
+    }
+
+    return res.status(200).json({
+      message: "Login successful.",
+      user: {
+        id: user._id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error during OTP login:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 // logout
 export const logout = async (req, res) => {
   try {
@@ -236,14 +274,61 @@ export const verifyLink = async (req, res, next) => {
   }
 };
 
-// Reset Password
 export const resetPassword = async (req, res, next) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: "Token and new password are required." });
+  }
+
+  try {
+    // Decode the token to extract user ID or email
+      // eslint-disable-next-line no-undef
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
+
+    // Find the user using the decoded information
+    const user = await User.findById(decoded.id); // Assuming `id` is in the token payload
+    console.log("User found:", user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (user.otpExpiresAt && user.otpExpiresAt < Date.now()) {
+      return res.status(400).json({ message: "Token is expired." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    user.emailOtp = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Password successfully reset. You can now log in with the new password." });
+  } catch (error) {
+    if (error.name === "JsonWebTokenError") {
+      return res.status(400).json({ message: "Invalid token." });
+    } else if (error.name === "TokenExpiredError") {
+      return res.status(400).json({ message: "Token is expired." });
+    }
+    next(error);
+  }
+};
+
+// Change Password (for logged-in users)
+export const changePassword = async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: "Current and new passwords are required." });
+  }
 
   try {
     const user = await User.findById(req.user.id).select("+password");
-
-
     if (!user) {
       return next(new ErrorHandler("User not found", 404));
     }
@@ -252,7 +337,7 @@ export const resetPassword = async (req, res, next) => {
     const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isPasswordMatch) {
-      return next(new ErrorHandler("Incorrect current password", 401));
+      return res.status(401).json({ message: "Incorrect current password." });
     }
 
     // Hash the new password
@@ -266,7 +351,6 @@ export const resetPassword = async (req, res, next) => {
       message: "Your password has been successfully changed. You can now use your new password to log in.",
     });
   } catch (error) {
-    console.error(error);
-    return next(error);
+    next(error);
   }
 };

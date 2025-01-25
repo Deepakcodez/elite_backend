@@ -12,6 +12,7 @@ import ErrorHandler from '../utils/errorHandler.js';
         token = req.headers.authorization.split(' ')[1];
           // eslint-disable-next-line no-undef
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
 
         // Fetch user details based on the role
         let user;
@@ -33,6 +34,7 @@ import ErrorHandler from '../utils/errorHandler.js';
 
         // Attach the user, partner, or admin to the request object
         req[role] = user;
+        
         next();
       } catch (error) {
         res.status(401).json({

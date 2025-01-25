@@ -8,6 +8,8 @@ import {
     sendVerificationLink,
     verifyLink,
     resetPassword,
+    changePassword,
+    loginWithMobileOtp
 } from "../controllers/user.controller.js";
 import  {protect}  from "../middleware/authMiddleware.js";
 
@@ -18,6 +20,9 @@ router.post("/signup", signup);
 
 // Login route
 router.post("/login", login);
+
+// Route for logging in with mobile OTP
+router.post("/login/otp", loginWithMobileOtp);
 
 // Logout route
 router.post("/logout", logout);
@@ -35,6 +40,9 @@ router.post("/send-verification-link", sendVerificationLink);
 router.get("/verify-link/:token", verifyLink);
 
 // Reset Password
-router.post("/reset-password", protect, resetPassword);
+router.post("/reset-password",  resetPassword);
+
+// change password
+router.post("/change-password", protect, changePassword);
 
 export default router;
