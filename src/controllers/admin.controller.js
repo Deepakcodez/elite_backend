@@ -2,6 +2,100 @@ import User from '../models/user/user.model.js';
 import ErrorHandler from '../utils/errorHandler.js';
 import  KYC  from "../models/kyc/kyc.model.js";
 import  Partner  from "../models/partner/partner.model.js";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+
+
+// Admin Registration Controller
+export const adminRegister = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Validate input fields
+    if (!name || !email || !password) {
+      return next(new ErrorHandler('All fields are required', 400));
+    }
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return next(new ErrorHandler('Email is already registered', 400));
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new admin with the role explicitly set to "admin"
+    const newAdmin = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'admin', // Explicitly set the role as admin
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin registered successfully',
+      admin: {
+        id: newAdmin._id,
+        name: newAdmin.name,
+        email: newAdmin.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin Login Controller
+export const adminLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input fields
+    if (!email || !password) {
+      return next(new ErrorHandler('Email and password are required', 400));
+    }
+
+    // Find the user in the database
+    const admin = await User.findOne({ email });
+
+    // Check if the user exists and is an admin
+    if (!admin || admin.role !== 'admin') {
+      return next(new ErrorHandler('Invalid email or password', 401));
+    }
+
+    // Verify the password
+    const isPasswordCorrect = await bcrypt.compare(password, admin.password);
+    if (!isPasswordCorrect) {
+      return next(new ErrorHandler('Invalid email or password', 401));
+    }
+
+    // Generate a JWT token
+    // eslint-disable-next-line no-undef
+    const token = jwt.sign({ id: admin._id, role: admin.role }, process.env.JWT_SECRET, {
+      // eslint-disable-next-line no-undef
+      expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Admin logged in successfully',
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin Logout Controller
+export const adminLogout = (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Admin logged out successfully',
+  });
+};
 
 
 // Controller to get a user by ID (admin only)
