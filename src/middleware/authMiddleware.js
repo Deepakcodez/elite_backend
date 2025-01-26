@@ -6,7 +6,6 @@ import ErrorHandler from '../utils/errorHandler.js';
  export const protect = (role) => {
   return async (req, res, next) => {
     let token;
-
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       try {
         token = req.headers.authorization.split(' ')[1];

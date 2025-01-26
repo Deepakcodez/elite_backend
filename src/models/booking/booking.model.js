@@ -2,12 +2,11 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    painterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Partner",
-      required: true,
-
-    },
+    // painterId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "Partner",
+    //   required: true,
+    // },
     orderId: {
       type: String,
       required: true,
@@ -28,9 +27,9 @@ const bookingSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    description : {
+    description: {
       type: String,
-      required : false,
+      required: false,
     },
     customer: {
       ref: "User",
@@ -49,11 +48,14 @@ const bookingSchema = new mongoose.Schema(
     },
     date: {
       type: Date,
-      default: Date.now,
       required: true,
     },
     time: {
       type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
       required: true,
     },
   },
