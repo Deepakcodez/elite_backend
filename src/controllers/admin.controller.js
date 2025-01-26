@@ -4,7 +4,7 @@ import User from '../models/user/user.model.js';
 import ErrorHandler from '../utils/errorHandler.js';
 import  KYC  from "../models/kyc/kyc.model.js";
 import  Partner  from "../models/partner/partner.model.js";
-import  Painter  from "../models/painter/painter.model.js";
+import  Painter  from "../models/painter/painterModel.js";
 
 
 
