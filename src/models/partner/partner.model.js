@@ -8,38 +8,52 @@ const partnerSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
-      required: true
+      // required: true
     },
     fathersName: {
       type: String,
-      required: true
+      // required: true
+    },
+    email: {
+      type: String,
+    },
+    mobile: {
+      type: Number,
+    },
+    otp:{
+      type : Number,
+      default:null
+    },
+    password:{
+      type : String,
+      required : true
     },
     dob: {
       type: Date,
-      required: true
+      // required: true
     },
     primaryMobile: {
       type: String,
-      required: true
+      // required: true
     },
     whatsappNumber: {
       type: String,
-      required: true
+      // required: true
     },
     secondaryMobile: {
       type: String
     },
     bloodGroup: {
       type: String,
-      required: true
+      // required: true
     },
     city: {
       type: String,
-      required: true
+      // required: true
     },
     address: {
       type: String,
-      required: true
+      // required: true
     },
     languages: [
       {

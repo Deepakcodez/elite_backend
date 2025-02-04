@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
 import partnerModel from "../models/partner/partner.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 // Fixed OTP function
 const generateOTP = () => "1234"; // Fixed OTP
@@ -12,7 +15,9 @@ export async function register(req, res) {
     // Validate input
     if (!name) return res.status(400).send({ error: "Name is required." });
     if (!mobile && !email)
-      return res.status(400).send({ error: "Either mobile or email is required." });
+      return res
+        .status(400)
+        .send({ error: "Either mobile or email is required." });
 
     // Check for duplicate mobile or email
     if (mobile) {
@@ -32,9 +37,9 @@ export async function register(req, res) {
 
       // Create a new user with OTP
       const newUser = new partnerModel({
-        name,
+        firstName: name,
         mobile,
-        otp, // Fixed OTP
+        password,
         isVerified: false,
       });
 
@@ -42,18 +47,18 @@ export async function register(req, res) {
       console.log(`Mock SMS: OTP for mobile number ${mobile} is ${otp}`);
 
       await newUser.save();
-      return res
-        .status(201)
-        .send({ msg: "User registered successfully. OTP is 1234 for testing purposes." });
+      return res.status(201).send({
+        msg: "User registered successfully. OTP is 1234 for testing purposes.",
+      });
     }
 
     // Email-based Signup
     if (email) {
       const newUser = new partnerModel({
-        name,
+        firstName: name,
         email,
-        password, 
-        isVerified: true,
+        password,
+        isVerified: false,
       });
 
       await newUser.save();
@@ -67,6 +72,29 @@ export async function register(req, res) {
   }
 }
 
+export const sendOtpOnPhoneForLogin = asyncHandler(async (req, res) => {
+  const { phone } = req.body;
+  //  for error
+  if (!phone) {
+    throw new ApiError(404, "Provide phone number");
+  }
+
+  const partner = await partnerModel.findOne({ mobile: phone });
+  console.log(partner);
+
+  if (!partner) {
+    return res.status(404).json(new ApiResponse(404, "Partner not found"));
+  }
+  console.log(partner);
+  partner.otp = generateOTP();
+  await partner.save();
+  //send
+  //  for success
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
+});
+
 // Verify OTP for Mobile Signup
 export async function verifyRegisterOTP(req, res) {
   try {
@@ -74,16 +102,19 @@ export async function verifyRegisterOTP(req, res) {
 
     const user = await partnerModel.findOne({ mobile });
     if (!user) return res.status(404).send({ error: "User not found." });
-    if (user.otp !== otp) return res.status(400).send({ error: "Invalid OTP." });
+    // if (user.otp !== otp) return res.status(400).send({ error: "Invalid OTP." });
 
-    user.isVerified = true;
-    user.otp = null; 
+    user.otp = null;
     await user.save();
 
-    res.status(200).send({ msg: "OTP verified successfully. User registration completed." });
+    res
+      .status(200)
+      .send({ msg: "OTP verified successfully. User registration completed." });
   } catch (error) {
     console.error("Error during OTP verification:", error);
-    res.status(500).send({ error: "An error occurred during OTP verification." });
+    res
+      .status(500)
+      .send({ error: "An error occurred during OTP verification." });
   }
 }
 
@@ -101,7 +132,9 @@ export async function login(req, res) {
       const otp = generateOTP();
       user.otp = otp;
 
-      console.log(`Mock SMS: OTP for login for mobile number ${mobile} is ${otp}`);
+      console.log(
+        `Mock SMS: OTP for login for mobile number ${mobile} is ${otp}`
+      );
 
       await user.save();
       return res
@@ -125,7 +158,9 @@ export async function login(req, res) {
       return res.status(200).send({ msg: "Login successful.", token });
     }
 
-    return res.status(400).send({ error: "Invalid login method. Provide mobile or email." });
+    return res
+      .status(400)
+      .send({ error: "Invalid login method. Provide mobile or email." });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).send({ error: "An error occurred during login." });
@@ -139,9 +174,10 @@ export async function verifyLoginOTP(req, res) {
 
     const user = await partnerModel.findOne({ mobile });
     if (!user) return res.status(404).send({ error: "User not found." });
-    if (user.otp !== otp) return res.status(400).send({ error: "Invalid OTP." });
+    if (user.otp !== otp)
+      return res.status(400).send({ error: "Invalid OTP." });
 
-    user.otp = null; 
+    user.otp = null;
     await user.save();
 
     const token = jwt.sign(
@@ -151,13 +187,16 @@ export async function verifyLoginOTP(req, res) {
       { expiresIn: "30d" }
     );
 
-    res.status(200).send({ msg: "OTP verified successfully. Login successful.", token });
+    res
+      .status(200)
+      .send({ msg: "OTP verified successfully. Login successful.", token });
   } catch (error) {
     console.error("Error during OTP verification for login:", error);
-    res.status(500).send({ error: "An error occurred during OTP verification for login." });
+    res
+      .status(500)
+      .send({ error: "An error occurred during OTP verification for login." });
   }
 }
-
 
 export const signOut = async (req, res) => {
   try {
@@ -186,10 +225,11 @@ export const createProfile = async (req, res) => {
     await profile.save();
     res.status(201).json({ msg: "Profile created successfully.", profile });
   } catch (error) {
-    res.status(500).json({ msg: "Error creating profile", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error creating profile", error: error.message });
   }
 };
-
 
 // Get Profile
 export const getProfile = async (req, res) => {
@@ -198,7 +238,9 @@ export const getProfile = async (req, res) => {
     if (!profile) return res.status(404).json({ msg: "Profile not found." });
     res.status(200).json(profile);
   } catch (error) {
-    res.status(500).json({ msg: "Error fetching profile", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error fetching profile", error: error.message });
   }
 };
 
@@ -213,8 +255,6 @@ export const updateProfile = async (req, res) => {
 
     const updates = { name, businessName, gender, phoneNumber };
 
-
-
     const profile = await partnerModel.findByIdAndUpdate(
       req.params.id,
       updates,
@@ -225,11 +265,11 @@ export const updateProfile = async (req, res) => {
 
     res.status(200).json({ msg: "Profile updated successfully.", profile });
   } catch (error) {
-    res.status(500).json({ msg: "Error updating profile", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Error updating profile", error: error.message });
   }
 };
-
-
 
 // Get Earnings
 export const getEarnings = async (req, res) => {

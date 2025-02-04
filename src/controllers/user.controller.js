@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import ErrorHandler from "../utils/errorHandler.js"
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import { ApiError } from "../utils/apiError.js";
 
 // Mock OTP
 const MOCK_OTP = "9876";
@@ -99,10 +100,7 @@ export const loginWithEmailOtp = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // If user does not exist, create a new user
-      user = new User({ email });
-      await user.save();
-      console.log('New user created:', user);
+      throw new ApiError(404, "Email not exist");
     }
 
     // Generate a 6-digit OTP
@@ -111,7 +109,6 @@ export const loginWithEmailOtp = async (req, res) => {
     // Save the OTP to the user's record (insecure if not hashed; consider hashing OTP in production)
     user.emailOtp = emailOtp;
     await user.save();
-
     // Send the OTP via email
     await sendEmail(email, 'Your Login OTP', `Your OTP is: ${emailOtp}`);
     console.log('OTP sent to email:', email);
@@ -174,7 +171,7 @@ export const loginWithMobileOtp = async (req, res) => {
 
   try {
     // Validate input
-    if (!phone || !otp) {
+    if (!phone && !otp) {
       return res.status(400).json({ message: "Phone number and OTP are required." });
     }
 

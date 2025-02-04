@@ -20,7 +20,7 @@ app.use("/api/v1/partner", partnerRoutes);
 app.use("/api/v1/booking", bookingRoutes);
 app.use("/api/v1/category", categoryRoute);
 app.use("/api/v1/service", serviceRoute);
-app.use("/api/v1/User",userRoutes);
+app.use("/api/v1/user",userRoutes);
 app.use("/api/v1/admin",adminRoutes);
 app.use("/api/v1/painter",painterRoutes);
 
@@ -35,4 +35,4 @@ app.get("*", (req, res) => {
 
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 7000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on  http://localhost:${PORT}/`));

@@ -43,6 +43,6 @@ router.get("/verify-link/:token", verifyLink);
 router.post("/reset-password",  resetPassword);
 
 // change password
-router.post("/change-password", protect, changePassword);
+router.post("/change-password", protect("user"), changePassword);
 
 export default router;
