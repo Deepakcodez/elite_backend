@@ -5,6 +5,7 @@ import {
   getProfile,
   login,
   register,
+  sendOtpOnPhoneForLogin,
   signOut,
   updateAvailability,
   updateProfile,
@@ -16,8 +17,9 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/login/send-otp", sendOtpOnPhoneForLogin);
+router.post("/login/verify/otp", verifyLoginOTP);
 router.post("/verifyRegisterOtp", verifyRegisterOTP);
-router.post("/verifyLoginOtp", verifyLoginOTP);
 router.post("/signout", signOut);
 
 router.post("/profile", createProfile);

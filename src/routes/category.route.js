@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get("/",   getAllCategories);
+router.get("/", getAllCategories);
 router.post("/create", createCategory);
 router.patch("/update/:id", updateCategory);
 router.delete("/delete/:id", deleteCategory);

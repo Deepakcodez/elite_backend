@@ -15,7 +15,6 @@ const demo = asyncHandler(async (req, res) => {
 
 const createCategory = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
-  
 
   if (!title.trim() || !description.trim()) {
     throw new ApiError(404, "provide title and description");
@@ -33,7 +32,7 @@ const createCategory = asyncHandler(async (req, res) => {
   };
   const category = await categoryModel.create(data);
 
-  return res.status(200).json(new ApiResponse(200, category, "your message"));
+  return res.status(200).json(new ApiResponse(200, category, "Category created successfully"));
 });
 
 const getAllCategories = asyncHandler(async (req, res) => {
