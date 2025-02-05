@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  changePassword,
   createProfile,
   getEarnings,
   getProfile,
@@ -12,6 +13,7 @@ import {
   verifyLoginOTP,
   // verifyRegisterOTP,
 } from "../controllers/parnter.controller.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.post("/login", login);
 router.post("/login/send-otp", sendOtpForLogin);
 router.post("/login/verify/otp", verifyLoginOTP);
 router.post("/signout", signOut);
+router.post("/change/password", protect("partner"), changePassword);
 
 // router.post("/verifyRegisterOtp", verifyRegisterOTP);
 

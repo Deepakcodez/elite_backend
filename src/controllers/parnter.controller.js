@@ -132,7 +132,7 @@ export const sendOtpForLogin = asyncHandler(async (req, res) => {
   if (email) {
     partner = await partnerModel.findOne({ email });
   } else {
-    partner = await partnerModel.findOne({ mobile});
+    partner = await partnerModel.findOne({ mobile });
   }
 
   if (!partner) {
@@ -147,7 +147,6 @@ export const sendOtpForLogin = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
 });
-
 
 // Verify OTP for Login for phone
 export async function verifyLoginOTP(req, res) {
@@ -190,29 +189,26 @@ export async function verifyLoginOTP(req, res) {
   }
 }
 
-// Verify OTP for Mobile Signup for phone
-// export async function verifyRegisterOTP(req, res) {
-//   try {
-//     const { mobile, otp } = req.body;
+export async function changePassword(req, res) {
+  const { newPassword } = req.body;
+  const partner = req.partner;
+  try {
+    //  for error
+    if (!newPassword) {
+      throw new ApiError(404, "Provide new password");
+    }
+    if (!partner) return res.status(404).send({ error: "User not found." });
 
-//     const user = await partnerModel.findOne({ mobile });
-//     if (!user) return res.status(404).send({ error: "User not found." });
-//     if (user.otp !== otp)
-//       return res.status(400).send({ error: "Invalid OTP." });
-
-//     user.otp = null;
-//     await user.save();
-
-//     res
-//       .status(200)
-//       .send({ msg: "OTP verified successfully. User registration completed." });
-//   } catch (error) {
-//     console.error("Error during OTP verification:", error);
-//     res
-//       .status(500)
-//       .send({ error: "An error occurred during OTP verification." });
-//   }
-// }
+    partner.password = newPassword;
+    await partner.save();
+    res.status(200).send({ msg: "Password changed successfully." });
+  } catch (error) {
+    console.error("Error during OTP verification for login:", error);
+    res
+      .status(500)
+      .send({ error: "An error occurred during OTP verification for login." });
+  }
+}
 
 export const signOut = async (req, res) => {
   try {
