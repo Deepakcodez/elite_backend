@@ -72,52 +72,6 @@ export async function register(req, res) {
   }
 }
 
-export const sendOtpOnPhoneForLogin = asyncHandler(async (req, res) => {
-  const { phone } = req.body;
-  //  for error
-  if (!phone) {
-    throw new ApiError(404, "Provide phone number");
-  }
-
-  const partner = await partnerModel.findOne({ mobile: phone });
-  console.log(partner);
-
-  if (!partner) {
-    return res.status(404).json(new ApiResponse(404, "Partner not found"));
-  }
-  console.log(partner);
-  partner.otp = generateOTP();
-  await partner.save();
-  //send
-  //  for success
-  return res
-    .status(200)
-    .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
-});
-
-// Verify OTP for Mobile Signup
-export async function verifyRegisterOTP(req, res) {
-  try {
-    const { mobile, otp } = req.body;
-
-    const user = await partnerModel.findOne({ mobile });
-    if (!user) return res.status(404).send({ error: "User not found." });
-    // if (user.otp !== otp) return res.status(400).send({ error: "Invalid OTP." });
-
-    user.otp = null;
-    await user.save();
-
-    res
-      .status(200)
-      .send({ msg: "OTP verified successfully. User registration completed." });
-  } catch (error) {
-    console.error("Error during OTP verification:", error);
-    res
-      .status(500)
-      .send({ error: "An error occurred during OTP verification." });
-  }
-}
-
 // Login Function
 export async function login(req, res) {
   try {
@@ -167,12 +121,50 @@ export async function login(req, res) {
   }
 }
 
-// Verify OTP for Login
+export const sendOtpForLogin = asyncHandler(async (req, res) => {
+  const { mobile, email } = req.body;
+  console.log(mobile);
+  //  for error
+  if (!mobile && !email) {
+    throw new ApiError(404, "Provide phone number or email");
+  }
+  let partner;
+  if (email) {
+    partner = await partnerModel.findOne({ email });
+  } else {
+    partner = await partnerModel.findOne({ mobile});
+  }
+
+  if (!partner) {
+    return res.status(404).json(new ApiResponse(404, "Partner not found"));
+  }
+  console.log(partner);
+  partner.otp = generateOTP();
+  await partner.save();
+  //send
+  //  for success
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
+});
+
+
+// Verify OTP for Login for phone
 export async function verifyLoginOTP(req, res) {
   try {
-    const { mobile, otp } = req.body;
+    const { mobile, email, otp } = req.body;
 
-    const user = await partnerModel.findOne({ mobile });
+    //  for error
+    if (!mobile && !email) {
+      throw new ApiError(404, "Provide phone number or email");
+    }
+
+    let user;
+    if (email) {
+      user = await partnerModel.findOne({ email });
+    } else {
+      user = await partnerModel.findOne({ mobile });
+    }
     if (!user) return res.status(404).send({ error: "User not found." });
     if (user.otp !== otp)
       return res.status(400).send({ error: "Invalid OTP." });
@@ -197,6 +189,30 @@ export async function verifyLoginOTP(req, res) {
       .send({ error: "An error occurred during OTP verification for login." });
   }
 }
+
+// Verify OTP for Mobile Signup for phone
+// export async function verifyRegisterOTP(req, res) {
+//   try {
+//     const { mobile, otp } = req.body;
+
+//     const user = await partnerModel.findOne({ mobile });
+//     if (!user) return res.status(404).send({ error: "User not found." });
+//     if (user.otp !== otp)
+//       return res.status(400).send({ error: "Invalid OTP." });
+
+//     user.otp = null;
+//     await user.save();
+
+//     res
+//       .status(200)
+//       .send({ msg: "OTP verified successfully. User registration completed." });
+//   } catch (error) {
+//     console.error("Error during OTP verification:", error);
+//     res
+//       .status(500)
+//       .send({ error: "An error occurred during OTP verification." });
+//   }
+// }
 
 export const signOut = async (req, res) => {
   try {

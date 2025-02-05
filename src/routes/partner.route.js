@@ -5,22 +5,23 @@ import {
   getProfile,
   login,
   register,
-  sendOtpOnPhoneForLogin,
+  sendOtpForLogin,
   signOut,
   updateAvailability,
   updateProfile,
   verifyLoginOTP,
-  verifyRegisterOTP,
+  // verifyRegisterOTP,
 } from "../controllers/parnter.controller.js";
 
 const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.post("/login/send-otp", sendOtpOnPhoneForLogin);
+router.post("/login/send-otp", sendOtpForLogin);
 router.post("/login/verify/otp", verifyLoginOTP);
-router.post("/verifyRegisterOtp", verifyRegisterOTP);
 router.post("/signout", signOut);
+
+// router.post("/verifyRegisterOtp", verifyRegisterOTP);
 
 router.post("/profile", createProfile);
 router.get("/profile/:id", getProfile);
