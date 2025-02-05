@@ -4,11 +4,14 @@ const partnerSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true
+      required: true,
     },
     lastName: {
       type: String,
       // required: true
+    },
+    businessName: {
+      type: String,
     },
     fathersName: {
       type: String,
@@ -20,13 +23,16 @@ const partnerSchema = new mongoose.Schema(
     mobile: {
       type: Number,
     },
-    otp:{
-      type : Number,
-      default:null
+    otp: {
+      type: Number,
+      default: null,
     },
-    password:{
-      type : String,
-      required : true
+    password: {
+      type: String,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
     },
     dob: {
       type: Date,
@@ -41,7 +47,7 @@ const partnerSchema = new mongoose.Schema(
       // required: true
     },
     secondaryMobile: {
-      type: String
+      type: String,
     },
     bloodGroup: {
       type: String,
@@ -57,23 +63,24 @@ const partnerSchema = new mongoose.Schema(
     },
     languages: [
       {
-        type: String
-      }
+        type: String,
+      },
     ],
     profilePicture: {
-      type: String // need to fix according to cloudinary
+      type: String, // need to fix according to cloudinary
     },
     referralCode: {
-      type: String
+      type: String,
     },
     role: {
       type: String,
       default: "Partner",
       enum: ["Partner", "User", "Admin"],
     },
-    isVerified: { // will set by admin
+    isVerified: {
+      // will set by admin
       type: Boolean,
-      default: false
+      default: false,
     },
     serviceCategory: {
       ref: "Category",
@@ -90,14 +97,16 @@ const partnerSchema = new mongoose.Schema(
     },
     walletBalance: {
       type: Number,
-      default: 0
+      default: 0,
     },
     transactions: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Transaction"
-      }
+        ref: "Transaction",
+      },
     ],
+    latitude: { type: Number },
+    longitude: { type: Number },
   },
   { timestamps: true }
 );

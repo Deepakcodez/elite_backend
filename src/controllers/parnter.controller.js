@@ -223,15 +223,16 @@ export const signOut = async (req, res) => {
 // Create Profile
 export const createProfile = async (req, res) => {
   try {
-    const { name, businessName, gender, phoneNumber } = req.body;
+    const { name, businessName, gender, mobile } = req.body;
 
-    if (!name) return res.status(400).json({ error: "Name is required." });
+    if (!name || !mobile || !gender || !businessName)
+      return res.status(400).json({ error: "Name is required." });
 
     const profile = new partnerModel({
-      name,
+      firstName: name,
       businessName,
       gender,
-      phoneNumber,
+      mobile
     });
 
     await profile.save();
@@ -256,6 +257,23 @@ export const getProfile = async (req, res) => {
   }
 };
 
+
+//save location
+export const saveLocation = async (req, res) => {
+  const partner = req.partner;
+  try {
+    const { latitude, longitude } = req.body;
+    
+    partner.latitude = latitude;
+    partner.longitude = longitude;
+    await partner.save();
+    res.status(200).json({ msg: "Location saved successfully.", partner });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ msg: "Error saving location", error: error.message });
+  }
+}
 // Update Profile
 export const updateProfile = async (req, res) => {
   try {

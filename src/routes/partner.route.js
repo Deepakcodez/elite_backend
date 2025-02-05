@@ -6,6 +6,7 @@ import {
   getProfile,
   login,
   register,
+  saveLocation,
   sendOtpForLogin,
   signOut,
   updateAvailability,
@@ -23,6 +24,7 @@ router.post("/login/send-otp", sendOtpForLogin);
 router.post("/login/verify/otp", verifyLoginOTP);
 router.post("/signout", signOut);
 router.post("/change/password", protect("partner"), changePassword);
+router.post("/save/location", protect("partner"), saveLocation);
 
 // router.post("/verifyRegisterOtp", verifyRegisterOTP);
 

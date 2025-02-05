@@ -25,7 +25,6 @@ export const protect = (role) => {
         } else if (role === 'partner') {
           user = await Partner.findById(decoded.userId).select('-password');
           req.partner = user; // Attach partner to the request object
-          console.log(user);
         } else if (role === 'admin') {
           user = await User.findById(decoded.id).select('-password');
           if (!user || user.role !== 'admin') {
