@@ -1,6 +1,8 @@
 import Booking from "../models/booking/booking.model.js";
 import crypto from "crypto";
 import { ApiError } from "../utils/apiError.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 const calculatePrice = (typeOfProperty, numberOfUnits, numberOfBedrooms) => {
   let basePrice = 0;
@@ -103,12 +105,10 @@ const createBooking = async (req, res) => {
       select: "-password -emailOtp -createdAt -updatedAt -__v",
     });
 
-    res
-      .status(201)
-      .json({
-        msg: "Booking created successfully.",
-        booking: detailedOfBooking,
-      });
+    res.status(201).json({
+      msg: "Booking created successfully.",
+      booking: detailedOfBooking,
+    });
   } catch (error) {
     res
       .status(500)
@@ -190,4 +190,26 @@ const getBookingById = async (req, res) => {
   }
 };
 
-export { getBookingById, getBookings, createBooking, updateBookingStatus };
+const getBookingsByStatus = asyncHandler(async (req, res) => {
+  const { status } = req.params;
+  //  for error
+  if (!status) return res.status(400).json(ApiError(400, "status is required"));
+
+  const bookings = await Booking.find({ status });
+
+  if (!bookings)
+    return res.status(404).json(ApiError(404, "Bookings not found"));
+
+  //  for success
+  return res
+    .status(200)
+    .json(ApiResponse(200, bookings, "Bookings fetched successfully"));
+});
+
+export {
+  getBookingById,
+  getBookings,
+  createBooking,
+  updateBookingStatus,
+  getBookingsByStatus,
+};

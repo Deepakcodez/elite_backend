@@ -95,10 +95,67 @@ export const sendOtpOnPhoneForLogin = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
 });
 
+// Verify OTP for Login for mobile number
+export async function verifyLoginOTP(req, res) {
+  try {
+    const { mobile, otp } = req.body;
+
+    const user = await partnerModel.findOne({ mobile });
+    if (!user) return res.status(404).send({ error: "User not found." });
+    if (user.otp !== otp)
+      return res.status(400).send({ error: "Invalid OTP." });
+
+    user.otp = null;
+    await user.save();
+
+    const token = jwt.sign(
+      { userId: user._id, mobile: user.mobile },
+      // eslint-disable-next-line no-undef
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res
+      .status(200)
+      .send({ msg: "OTP verified successfully. Login successful.", token });
+  } catch (error) {
+    console.error("Error during OTP verification for login:", error);
+    res
+      .status(500)
+      .send({ error: "An error occurred during OTP verification for login." });
+  }
+}
+
+
+export const sendOtpOnEmailForLogin = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  //  for error
+  if (!email) {
+    throw new ApiError(404, "Provide email");
+  }
+
+  const partner = await partnerModel.findOne({ email });
+  console.log(partner);
+
+  if (!partner) {
+    return res.status(404).json(new ApiResponse(404, "Partner not found"));
+  }
+  console.log(partner);
+  partner.otp = generateOTP();
+  await partner.save();
+  //send
+  //  for success
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "OTP send to the registered Mobile number"));
+});
+
+
+
 // Verify OTP for Mobile Signup
 export async function verifyRegisterOTP(req, res) {
   try {
-    const { mobile, otp } = req.body;
+    const { mobile} = req.body;
 
     const user = await partnerModel.findOne({ mobile });
     if (!user) return res.status(404).send({ error: "User not found." });
@@ -120,8 +177,8 @@ export async function verifyRegisterOTP(req, res) {
 
 // Login Function
 export async function login(req, res) {
+  const { mobile, email, password } = req.body;
   try {
-    const { mobile, email, password } = req.body;
 
     if (mobile) {
       const user = await partnerModel.findOne({ mobile });
@@ -167,36 +224,6 @@ export async function login(req, res) {
   }
 }
 
-// Verify OTP for Login
-export async function verifyLoginOTP(req, res) {
-  try {
-    const { mobile, otp } = req.body;
-
-    const user = await partnerModel.findOne({ mobile });
-    if (!user) return res.status(404).send({ error: "User not found." });
-    if (user.otp !== otp)
-      return res.status(400).send({ error: "Invalid OTP." });
-
-    user.otp = null;
-    await user.save();
-
-    const token = jwt.sign(
-      { userId: user._id, mobile: user.mobile },
-      // eslint-disable-next-line no-undef
-      process.env.JWT_SECRET,
-      { expiresIn: "30d" }
-    );
-
-    res
-      .status(200)
-      .send({ msg: "OTP verified successfully. Login successful.", token });
-  } catch (error) {
-    console.error("Error during OTP verification for login:", error);
-    res
-      .status(500)
-      .send({ error: "An error occurred during OTP verification for login." });
-  }
-}
 
 export const signOut = async (req, res) => {
   try {
