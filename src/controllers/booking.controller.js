@@ -206,10 +206,32 @@ const getBookingsByStatus = asyncHandler(async (req, res) => {
     .json(ApiResponse(200, bookings, "Bookings fetched successfully"));
 });
 
+
+const getBookingsBySearch = asyncHandler(async (req, res) => {
+  const { search,category } = req.params;
+  //  for error
+  if (!search) return res.status(400).json(ApiError(400, "search is required"));
+  // Build the query
+  const query = {};
+  if (category) query.category = category;
+  if (search) query.name = { $regex: search, $options: 'i' }; // Case-insensitive search
+
+  // Fetch services from the database
+  const bookings = await Booking.find(query);
+  if (!bookings)
+    return res.status(404).json(ApiError(404, "Bookings not found"));
+
+  //  for success
+  return res
+    .status(200)
+    .json(ApiResponse(200, bookings, "Bookings fetched successfully"));
+});
+
 export {
   getBookingById,
   getBookings,
   createBooking,
   updateBookingStatus,
   getBookingsByStatus,
+  getBookingsBySearch,
 };
