@@ -1,5 +1,5 @@
 import express from "express";
-import { createBooking, getBookingById, getBookings, updateBookingStatus } from "../controllers/booking.controller.js";
+import { createBooking, getBookingById, getBookings, getBookingsByStatus, updateBookingStatus } from "../controllers/booking.controller.js";
 import { authorizeRoles, protect } from "../middleware/authMiddleware.js";
 
 
@@ -16,5 +16,8 @@ router.put("/bookings/:id/status", updateBookingStatus);
 
 // // Get a single booking by ID
 router.get("/bookings/:id", getBookingById);
+
+//get booking by status
+router.get("/bookings", authorizeRoles("partner"), getBookingsByStatus);
 
 export default router;

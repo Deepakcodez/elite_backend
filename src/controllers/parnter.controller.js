@@ -74,8 +74,8 @@ export async function register(req, res) {
 
 // Login Function
 export async function login(req, res) {
+  const { mobile, email, password } = req.body;
   try {
-    const { mobile, email, password } = req.body;
 
     if (mobile) {
       const user = await partnerModel.findOne({ mobile });
